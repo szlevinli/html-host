@@ -172,13 +172,14 @@ omit = ["src/html_host/db/migrations/*"]
 Base path：`/html-upload-api/v1`（版本化，为未来 v2 留空间）
 
 ```
+POST   /v1/auth/login     密码换 JWT（无需认证）
 POST   /v1/files          上传文件
 GET    /v1/files          获取文件列表
 DELETE /v1/files/{code}   删除文件
 GET    /health            健康检查（无需认证）
 ```
 
-认证：所有 `/v1/*` 端点通过 FastAPI Dependency 注入统一验证 Bearer Token。
+认证：JWT（HS256），通过 `POST /v1/auth/login` 用密码换取，有效期由 `JWT_EXPIRE_DAYS` 控制（默认 7 天）。所有 `/v1/files/*` 端点通过 FastAPI Dependency 注入统一验证 Bearer JWT。密码和 JWT 签名密钥均从环境变量读取（`ADMIN_PASSWORD`、`JWT_SECRET`）。
 
 ### 响应结构统一
 
