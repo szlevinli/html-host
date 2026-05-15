@@ -1,7 +1,9 @@
 import os
 import tempfile
+from collections.abc import AsyncGenerator
 
-# Must be set before importing any app module — pydantic-settings reads env at class instantiation
+# Must be set before importing any app module
+# pydantic-settings reads env at class instantiation
 os.environ.setdefault("ADMIN_PASSWORD", "test-password")
 os.environ.setdefault("JWT_SECRET", "test-secret-key-for-testing-only")
 os.environ.setdefault("BASE_URL", "http://testserver")
@@ -23,7 +25,7 @@ def auth_headers() -> dict[str, str]:
 
 
 @pytest.fixture
-async def db_session() -> AsyncSession:
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -34,8 +36,8 @@ async def db_session() -> AsyncSession:
 
 
 @pytest.fixture
-async def client(db_session: AsyncSession) -> AsyncClient:
-    async def _override() -> AsyncSession:
+async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+    async def _override() -> AsyncGenerator[AsyncSession, None]:
         yield db_session
 
     app.dependency_overrides[get_session] = _override

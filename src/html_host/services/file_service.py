@@ -1,7 +1,7 @@
 import asyncio
 import secrets
 import string
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from sqlalchemy import select
@@ -37,7 +37,7 @@ async def create_file(
         short_code=code,
         filename=filename,
         size_bytes=len(content),
-        upload_time=datetime.now(timezone.utc).isoformat(),
+        upload_time=datetime.now(UTC).isoformat(),
     )
     session.add(record)
     await session.commit()

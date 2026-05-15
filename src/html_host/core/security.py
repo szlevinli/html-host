@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 import jwt
@@ -12,18 +12,18 @@ _ALGORITHM = "HS256"
 
 
 def create_access_token() -> str:
-    expire = datetime.now(timezone.utc) + timedelta(days=settings.jwt_expire_days)
-    return jwt.encode({"exp": expire}, settings.jwt_secret, algorithm=_ALGORITHM)
+    expire = datetime.now(UTC) + timedelta(days=settings.jwt_expire_days)
+    return jwt.encode({"exp": expire}, settings.jwt_secret, algorithm=_ALGORITHM)  # type: ignore[reportUnknownMemberType]
 
 
 def verify_token(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(_bearer)],
 ) -> None:
     try:
-        jwt.decode(
+        jwt.decode(  # type: ignore[reportUnknownMemberType]
             credentials.credentials,
             settings.jwt_secret,
             algorithms=[_ALGORITHM],
         )
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    except jwt.PyJWTError as err:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED) from err

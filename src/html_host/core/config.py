@@ -13,4 +13,4 @@ class Settings(BaseSettings):
     max_file_size_mb: int = 2
 
 
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]

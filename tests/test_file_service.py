@@ -5,7 +5,9 @@ from html_host.services import file_service
 
 
 @pytest.mark.asyncio
-async def test_create_file(db_session: AsyncSession, tmp_path: pytest.TempPathFactory) -> None:
+async def test_create_file(
+    db_session: AsyncSession, tmp_path: pytest.TempPathFactory
+) -> None:
     upload_dir = str(tmp_path)
     record = await file_service.create_file(
         session=db_session,
@@ -19,7 +21,9 @@ async def test_create_file(db_session: AsyncSession, tmp_path: pytest.TempPathFa
 
 
 @pytest.mark.asyncio
-async def test_short_code_uniqueness(db_session: AsyncSession, tmp_path: pytest.TempPathFactory) -> None:
+async def test_short_code_uniqueness(
+    db_session: AsyncSession, tmp_path: pytest.TempPathFactory
+) -> None:
     upload_dir = str(tmp_path)
     records = [
         await file_service.create_file(
@@ -35,7 +39,9 @@ async def test_short_code_uniqueness(db_session: AsyncSession, tmp_path: pytest.
 
 
 @pytest.mark.asyncio
-async def test_delete_nonexistent(db_session: AsyncSession, tmp_path: pytest.TempPathFactory) -> None:
+async def test_delete_nonexistent(
+    db_session: AsyncSession, tmp_path: pytest.TempPathFactory
+) -> None:
     result = await file_service.delete_file(
         session=db_session,
         short_code="notexist",

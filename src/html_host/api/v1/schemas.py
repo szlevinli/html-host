@@ -1,8 +1,4 @@
-from typing import Generic, TypeVar
-
 from pydantic import BaseModel
-
-T = TypeVar("T")
 
 
 class FileResponse(BaseModel):
@@ -18,6 +14,6 @@ class ErrorDetail(BaseModel):
     message: str
 
 
-class ApiResponse(BaseModel, Generic[T]):
+class ApiResponse[T](BaseModel):
     data: T | None
     error: ErrorDetail | None
