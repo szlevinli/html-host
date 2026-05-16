@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
@@ -5,7 +7,7 @@ class FileResponse(BaseModel):
     short_code: str
     filename: str
     size_bytes: int
-    upload_time: str
+    upload_time: datetime
     url: str
 
 

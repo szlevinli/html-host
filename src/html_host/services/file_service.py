@@ -37,7 +37,7 @@ async def create_file(
         short_code=code,
         filename=filename,
         size_bytes=len(content),
-        upload_time=datetime.now(UTC).isoformat(),
+        upload_time=datetime.now(UTC),
     )
     session.add(record)
     await session.commit()
