@@ -25,7 +25,7 @@ FastAPI service with a strict layered structure — each layer has one job:
 ```
 api/v1/        ← HTTP boundary: routing, request/response shapes (Pydantic schemas)
 services/      ← business logic, framework-agnostic
-db/            ← SQLAlchemy async models + Alembic migrations
+db/            ← base.py (DeclarativeBase only), session.py (engine + get_session), models.py, migrations/
 core/          ← config (pydantic-settings) + auth (Bearer token dependency)
 ```
 

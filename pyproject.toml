@@ -36,6 +36,7 @@ build-backend = "uv_build"
 [tool.ruff]
 target-version = "py312"
 line-length = 88
+exclude = ["src/html_host/db/migrations/versions/"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
@@ -50,6 +51,7 @@ venvPath = "."
 venv = ".venv"
 reportMissingImports = true
 reportAny = true
+exclude = ["src/html_host/db/migrations/versions/"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

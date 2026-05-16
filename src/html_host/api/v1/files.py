@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from html_host.api.v1.schemas import ApiResponse, FileResponse
 from html_host.core.config import settings
 from html_host.core.security import verify_token
-from html_host.db.base import get_session
+from html_host.db.session import get_session
 from html_host.services import file_service
 
 router = APIRouter()

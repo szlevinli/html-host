@@ -15,7 +15,8 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from html_host.core.security import create_access_token
-from html_host.db.base import Base, get_session
+from html_host.db.base import Base
+from html_host.db.session import get_session
 from html_host.main import app
 
 
