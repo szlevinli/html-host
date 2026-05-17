@@ -49,6 +49,7 @@ pythonVersion = "3.12"
 typeCheckingMode = "strict"
 venvPath = "."
 venv = ".venv"
+include = ["src"]
 reportMissingImports = true
 reportAny = true
 exclude = ["src/html_host/db/migrations/versions/"]
