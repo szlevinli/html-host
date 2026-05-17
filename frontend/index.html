@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HTML Host</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <style>
+    main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
+    #login-view, #main-view { display: none; }
+    .file-url { font-family: monospace; font-size: 0.85em; word-break: break-all; }
+    td button { padding: 0.2rem 0.6rem; font-size: 0.85em; width: auto; margin: 0; }
+    #upload-msg { margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>HTML Host</h1>
+
+  <!-- 登录 -->
+  <section id="login-view">
+    <form id="login-form">
+      <label>
+        密码
+        <input type="password" id="password" autocomplete="current-password" required>
+      </label>
+      <button type="submit">登录</button>
+      <p id="login-error" style="color:var(--pico-del-color); display:none;">密码错误</p>
+    </form>
+  </section>
+
+  <!-- 主界面 -->
+  <section id="main-view">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="margin:0">上传文件</h2>
+      <button id="logout-btn" class="secondary outline" style="width:auto;">退出</button>
+    </div>
+
+    <form id="upload-form" style="margin-top:1rem;">
+      <input type="file" id="file-input" accept=".html,.htm" required>
+      <button type="submit">上传</button>
+      <p id="upload-msg" style="display:none;"></p>
+    </form>
+
+    <h2>已上传文件</h2>
+    <div id="file-list"></div>
+  </section>
+</main>
+
+<script>
+  const _h = window.location.hostname;
+  const API_BASE = (
+    _h === 'localhost' || _h === '127.0.0.1' || _h === ''
+      ? 'http://localhost:8000/v1'
+      : '/html-upload-api/v1'
+  );
+
+  const getToken = () => localStorage.getItem('token');
+  const authHeaders = () => ({ Authorization: `Bearer ${getToken()}` });
+
+  function showView(view) {
+    document.getElementById('login-view').style.display = view === 'login' ? 'block' : 'none';
+    document.getElementById('main-view').style.display  = view === 'main'  ? 'block' : 'none';
+  }
+
+  function fmtBytes(n) {
+    if (n < 1024) return `${n} B`;
+    if (n < 1048576) return `${(n / 1024).toFixed(1)} KB`;
+    return `${(n / 1048576).toFixed(1)} MB`;
+  }
+
+  function fmtDate(iso) {
+    return new Date(iso).toLocaleString('zh-CN');
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    showView('login');
+  }
+
+  async function loadFiles() {
+    const res = await fetch(`${API_BASE}/files`, { headers: authHeaders() });
+    if (res.status === 401) { logout(); return; }
+    const { data } = await res.json();
+    const el = document.getElementById('file-list');
+    if (!data || data.length === 0) {
+      el.innerHTML = '<p>暂无文件</p>';
+      return;
+    }
+    el.innerHTML = `
+      <figure><table>
+        <thead><tr>
+          <th>文件名</th><th>大小</th><th>上传时间</th><th>链接</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${data.map(f => `<tr>
+            <td>${escHtml(f.filename)}</td>
+            <td>${fmtBytes(f.size_bytes)}</td>
+            <td>${fmtDate(f.upload_time)}</td>
+            <td><a class="file-url" href="${escHtml(f.url)}" target="_blank">${escHtml(f.url)}</a></td>
+            <td><button class="secondary outline del" data-code="${escHtml(f.short_code)}">删除</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table></figure>`;
+    el.querySelectorAll('.del').forEach(btn =>
+      btn.addEventListener('click', () => deleteFile(btn.dataset.code))
+    );
+  }
+
+  async function deleteFile(code) {
+    if (!confirm('确认删除？')) return;
+    const res = await fetch(`${API_BASE}/files/${code}`, {
+      method: 'DELETE', headers: authHeaders(),
+    });
+    if (res.ok) loadFiles();
+  }
+
+  // 登录
+  document.getElementById('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: document.getElementById('password').value }),
+    });
+    if (res.ok) {
+      const { access_token } = await res.json();
+      localStorage.setItem('token', access_token);
+      document.getElementById('login-error').style.display = 'none';
+      showView('main');
+      loadFiles();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  });
+
+  // 上传
+  document.getElementById('upload-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const file = document.getElementById('file-input').files[0];
+    const msg  = document.getElementById('upload-msg');
+    const fd   = new FormData();
+    fd.append('file', file);
+    msg.style.display = 'none';
+    const res = await fetch(`${API_BASE}/files`, {
+      method: 'POST', headers: authHeaders(), body: fd,
+    });
+    if (res.ok) {
+      const { data } = await res.json();
+      msg.style.color   = 'var(--pico-ins-color)';
+      msg.textContent   = `上传成功：${data.url}`;
+      msg.style.display = 'block';
+      document.getElementById('file-input').value = '';
+      loadFiles();
+    } else {
+      msg.style.color   = 'var(--pico-del-color)';
+      msg.textContent   = '上传失败';
+      msg.style.display = 'block';
+    }
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', logout);
+
+  // 初始化
+  if (getToken()) { showView('main'); loadFiles(); }
+  else             { showView('login'); }
+</script>
+</body>
+</html>

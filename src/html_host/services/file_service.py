@@ -30,7 +30,7 @@ async def create_file(
     else:
         raise RuntimeError("short_code collision after 5 attempts")
 
-    dest = Path(upload_dir) / code
+    dest = Path(upload_dir) / f"{code}.html"
     await asyncio.to_thread(dest.write_bytes, content)
 
     record = File(
@@ -59,7 +59,7 @@ async def delete_file(
     if record is None:
         return False
 
-    dest = Path(upload_dir) / short_code
+    dest = Path(upload_dir) / f"{short_code}.html"
     await asyncio.to_thread(lambda: dest.unlink(missing_ok=True))
 
     await session.delete(record)

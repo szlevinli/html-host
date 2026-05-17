@@ -41,7 +41,7 @@ async def upload_file(
             filename=record.filename,
             size_bytes=record.size_bytes,
             upload_time=record.upload_time,
-            url=f"{settings.base_url}/html/{record.short_code}",
+            url=f"{settings.base_url}/html/{record.short_code}.html",
         ),
         error=None,
     )
@@ -60,7 +60,7 @@ async def list_files(
                 filename=f.filename,
                 size_bytes=f.size_bytes,
                 upload_time=f.upload_time,
-                url=f"{settings.base_url}/html/{f.short_code}",
+                url=f"{settings.base_url}/html/{f.short_code}.html",
             )
             for f in files
         ],
