@@ -47,7 +47,7 @@ async def test_upload_and_list(
     data = r.json()["data"]  # type: ignore[reportAny]
     assert data["filename"] == "hello.html"
     assert data["size_bytes"] == len(content)
-    assert data["url"].endswith(data["short_code"])  # type: ignore[reportAny]
+    assert data["url"].endswith(f"{data['short_code']}.html")  # type: ignore[reportAny]
 
     r = await client.get("/v1/files", headers=auth_headers)
     assert r.status_code == 200
