@@ -1,0 +1,15 @@
+[Unit]
+Description=html-host
+After=network.target
+
+[Service]
+User=web
+WorkingDirectory=/opt/html-host
+EnvironmentFile=/opt/html-host/.env
+ExecStart=/opt/html-host/.venv/bin/uvicorn html_host.main:app --host 127.0.0.1 --port 8100
+ReadWritePaths=/var/lib/html-host /var/www/html-host
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
