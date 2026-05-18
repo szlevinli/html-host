@@ -14,6 +14,7 @@ from html_host.core.config import settings
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
     app.mount("/html", StaticFiles(directory=settings.upload_dir), name="html")
+    app.mount("/html-host", StaticFiles(directory="frontend", html=True), name="frontend")
     yield
 
 
