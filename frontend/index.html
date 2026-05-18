@@ -101,13 +101,25 @@
             <td>${escHtml(f.filename)}</td>
             <td>${fmtBytes(f.size_bytes)}</td>
             <td>${fmtDate(f.upload_time)}</td>
-            <td><a class="file-url" href="${escHtml(f.url)}" target="_blank">${escHtml(f.url)}</a></td>
+            <td>
+              <a class="file-url" href="${escHtml(f.url)}" target="_blank">${escHtml(f.url)}</a>
+              <button class="secondary outline copy" data-url="${escHtml(f.url)}" style="margin-top:0.3rem;">复制</button>
+            </td>
             <td><button class="secondary outline del" data-code="${escHtml(f.short_code)}">删除</button></td>
           </tr>`).join('')}
         </tbody>
       </table></figure>`;
     el.querySelectorAll('.del').forEach(btn =>
       btn.addEventListener('click', () => deleteFile(btn.dataset.code))
+    );
+    el.querySelectorAll('.copy').forEach(btn =>
+      btn.addEventListener('click', () => {
+        navigator.clipboard.writeText(btn.dataset.url).then(() => {
+          const orig = btn.textContent;
+          btn.textContent = '已复制';
+          setTimeout(() => { btn.textContent = orig; }, 1500);
+        });
+      })
     );
   }
 
