@@ -20,6 +20,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            git config --global --add safe.directory /opt/html-host
             cd /opt/html-host
             git pull
             uv sync --no-dev
